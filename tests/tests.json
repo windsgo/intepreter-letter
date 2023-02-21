@@ -1,0 +1,79 @@
+{
+  "tests_list": [
+    {
+      "program": "  \"xyz\";  456 ;",
+      "result": {
+        "type": "Program",
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "StringLiteral",
+              "value": "xyz"
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "NumericLiteral",
+              "value": 456
+            }
+          }
+        ]
+      }
+    },
+    {
+      "program": "'xyz';123;",
+      "result": {
+        "type": "Program",
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "StringLiteral",
+              "value": "xyz"
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "NumericLiteral",
+              "value": 123
+            }
+          }
+        ]
+      }
+    },
+    {
+      "program": " /*opq*/ 'kjl'; // a",
+      "result": {
+        "type": "Program",
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "StringLiteral",
+              "value": "kjl"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "program_file": "programs/doc_comment.txt",
+      "result": {
+        "type": "Program",
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+                "type": "StringLiteral",
+                "value": " here"
+              }
+          }
+        ]
+      }
+    }
+  ]
+}
+
