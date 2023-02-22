@@ -9,8 +9,6 @@
 #include <sstream>
 #include <assert.h>
 
-static bool operator==(const json::value& lhs, const json::value& rhs);
-
 static void test_parser() {
   const char* filename = __ROOT__ "tests/tests.json";
   std::ifstream ifs(filename);
@@ -85,58 +83,4 @@ int main(int argc, char** argv) {
   test_parser();
   return 0;
 }
-
-
-bool operator==(const json::value& lhs, const json::value& rhs)
-{
-  if (lhs.type() != rhs.type()) return false;
-  
-  // same type
-  // number
-  if (lhs.is_number()) {
-    return lhs.as_double() == rhs.as_double() && lhs.as_integer() == rhs.as_integer();
-  }
-
-  // string
-  if (lhs.is_string()) {
-    return lhs.as_string() == rhs.as_string();
-  }
-
-  // bool
-  if (lhs.is_boolean()) {
-    return lhs.as_boolean() == rhs.as_boolean();
-  }
-  
-  // null
-  if (lhs.is_null()) {
-    return rhs.is_null();
-  }
-  
-  // array
-  if (lhs.is_array()) {
-    auto& la = lhs.as_array();
-    auto& ra = rhs.as_array();
-    
-    if (la.size() != ra.size()) return false;
-    for (size_t i = 0; i < la.size(); ++i) {
-      if (!(la[i] == ra[i])) return false;
-    }
-  }
-
-  // object
-  if (lhs.is_object()) {
-    auto& lo = lhs.as_object();
-    auto& ro = rhs.as_object();
-
-    for (auto&& li : lo) {
-      if (!ro.find(li.first)) return false;
-
-      if (!(li.second == ro.at(li.first))) return false;
-    }
-  } 
-
-  return true;
-}
-
-
 

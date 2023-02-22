@@ -45,7 +45,7 @@
       }
     },
     {
-      "program": " /*opq*/ 'kjl'; // a",
+      "program": " /*opq*/ \n 'kjl'; // a",
       "result": {
         "type": "Program",
         "body": [

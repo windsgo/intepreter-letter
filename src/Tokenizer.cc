@@ -35,8 +35,8 @@ static const std::vector<std::pair<std::regex, std::optional<std::string>>> s_sp
   {std::regex{R"(^\d+)"}, "NUMBER"},                  // numbers
   {std::regex{R"(^"[^"]*")"}, "STRING"},               // string with double quote
   {std::regex{R"(^'[^']*')"}, "STRING"},               // string with single quote
-  {std::regex{R"(^\/\/.*)"}, std::nullopt},           // comments start with "//"
-  {std::regex{R"(^\/*[\s\S]*?*\/)"}, std::nullopt}  // documentation comment "/* */"
+  {std::regex{R"(^//.*)"}, std::nullopt},           // comments start with "//"
+  {std::regex{R"(^/*[\s\S]*?*/)"}, std::nullopt}  // documentation comment "/* */"
 };
 
 /**
