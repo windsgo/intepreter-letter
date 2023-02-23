@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <string>
 #include <memory>
 
@@ -24,10 +25,12 @@ public:
 
   json::value Program();
   
-  json::value StatementList();
+  json::value StatementList(const std::optional<std::string>& stop_lookahead_tokentype = std::nullopt);
 
   json::value Statement();
   json::value ExpressionStatement();
+  json::value BlockStatement();
+
   json::value Expression();
 
   json::value Literal();

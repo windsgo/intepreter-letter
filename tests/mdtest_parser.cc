@@ -3,6 +3,7 @@
 #include "Parser.h"
 #include "Tokenizer.h"
 #include "Exception.h"
+#include "ElapsedTimer.h"
 #include <algorithm>
 #include <iostream>
 #include <fstream>
@@ -20,14 +21,14 @@ static void test_parser() {
   std::stringstream ss;
   ss << ifs.rdbuf();
   
-  auto parse_opt = json::parse(ss.str());
+  auto&& parse_opt = json::parse(ss.str());
   if (!parse_opt) {
     std::cout << "parse error: " << filename << std::endl;
     return;
   }
   
-  auto tests = parse_opt.value();
-  auto tests_list = tests["tests_list"].as_array();
+  auto&& tests = parse_opt.value();
+  auto&& tests_list = tests["tests_list"].as_array();
  
   auto it = tests_list.begin();
 
@@ -54,7 +55,7 @@ static void test_parser() {
             program = ss.str();
           }
 
-          auto res = parser.parse(program);
+          auto&& res = parser.parse(program);
 
           auto &&expected_result = sample.at("result");
           if (!(res == expected_result)) {
@@ -79,8 +80,10 @@ static void test_parser() {
 }
 
 int main(int argc, char** argv) {
-  
-  test_parser();
+  {
+    letter::ElapsedTimer t("md_test_parser total time");
+    test_parser();
+  }
   return 0;
 }
 
