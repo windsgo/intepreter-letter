@@ -39,7 +39,8 @@ json::value Parser::StatementList(const std::optional<std::string>& stop_lookahe
   json::array statement_list;
 
   statement_list.emplace_back(this->Statement());
-  while (!this->m_lookahead.empty() && this->m_lookahead["type"] != stop_lookahead_tokentype.value_or("null")) {
+  while (!this->m_lookahead.empty() && this->m_lookahead["type"] != stop_lookahead_tokentype.value_or("_null")) {
+    // stop_lookahead_tokentype 是指结束查找语句的标识，如块语句从'{'查找到下一个'}'为止
     statement_list.emplace_back(this->Statement());
   } 
 
@@ -50,6 +51,7 @@ json::value Parser::StatementList(const std::optional<std::string>& stop_lookahe
  * Statement
  *  : ExpressionStatement
  *  | BlockStatement
+ *  | EmptyStatement
  *  ;
  */
 json::value Parser::Statement() {
@@ -58,11 +60,11 @@ json::value Parser::Statement() {
   auto&& type = this->m_lookahead["type"].as_string();
   if (type == "{") {
     return this->BlockStatement();
+  } else if (type == ";") {
+    return this->EmptyStatement();
   } else {
     return this->ExpressionStatement();
   }
-
-  return this->ExpressionStatement();
 }
 
 /**
@@ -88,7 +90,14 @@ json::value Parser::ExpressionStatement() {
 json::value Parser::BlockStatement() {
   this->_eat("{");
   
-  auto&& body = this->m_lookahead["type"].as_string() == "}" ? json::value{} : this->StatementList("}");
+  // if is an empty block, return an empty json::array, which in json is []
+  auto&& body = this->m_lookahead["type"].as_string() == "}" ? 
+    json::value{json::array{}} : this->StatementList("}");
+  
+  // std::cout << "meet a BlockStatement: body.empty():" << body.empty() << std::endl;
+  // std::cout << "body.is_null:" << body.is_null() << std::endl;
+  // std::cout << "body.is_array" << body.is_array() << std::endl;
+  // std::cout << "body.as_array().size()" << body.as_array().size() << std::endl;
 
   this->_eat("}");
 
@@ -99,10 +108,95 @@ json::value Parser::BlockStatement() {
 }
 
 /**
+ * EmptyStatement
+ *  : ";"
+ *  ;
+ */
+json::value Parser::EmptyStatement() {
+  this->_eat(";");
+  return json::object{
+    {"type", "EmptyStatement"}
+  };
+}
+
+/**
  * Expression
  */
 json::value Parser::Expression() {
-  return this->Literal();
+  return this->AdditiveExpression();
+}
+
+/**
+ * Generic binary expression.
+ */
+json::value Parser::_BinaryExpression(std::function<json::value(void)> builder, const std::string& operator_token) {
+  auto&& left = builder();
+
+  while (this->m_lookahead["type"].as_string() == operator_token) {
+    auto&& op = this->_eat(operator_token);
+  
+    auto&& right = this->MultiplicativeExpression();
+
+    left = json::object{
+      {"type", "BinaryExpression"},
+      {"operator", op["value"]},
+      {"left", left},
+      {"right", right}
+    };
+  }
+
+  return left;
+}
+
+/**
+ * AdditiveExpression
+ *  : MultiplicativeExpression
+ *  | AdditiveExpression ADDITIVE_OPERATOR MultiplicativeExpression
+ *  ;
+ */
+json::value Parser::AdditiveExpression() {
+  return _BinaryExpression(std::bind(&Parser::MultiplicativeExpression, this),
+      "ADDITIVE_OPERATOR");
+}
+
+/**
+ * MultiplicativeExpression
+ *  : PrimaryExpression
+ *  | MultiplicativeExpression ADDITIVE_OPERATOR PrimaryExpression
+ *  ;
+ */
+json::value Parser::MultiplicativeExpression() {
+  return _BinaryExpression(std::bind(&Parser::PrimaryExpression, this),
+      "MULTIPLICATIVE_OPERATOR");
+}
+
+/**
+ * PrimaryExpression
+ *  : Literal
+ *  ;
+ */
+json::value Parser::PrimaryExpression() {
+  auto&& type = this->m_lookahead["type"].as_string();
+
+  if (type == "(") {
+    return this->ParenthesizedExpression();
+  } else {
+    return this->Literal();
+  }
+}
+
+/**
+ * ParenthesizedExpression
+ *  : "(" Expression ")"
+ *  ;
+ */
+json::value Parser::ParenthesizedExpression() {
+  this->_eat("(");
+  auto&& expression = this->Expression(); // here inside ( ) must have AN expression, or throw error
+
+  this->_eat(")");
+
+  return expression;
 }
 
 /**

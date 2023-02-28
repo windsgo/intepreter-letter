@@ -1,0 +1,39 @@
+{
+  "program": " /*aa*/ { // xyz  \n 789; \"aa\" ; {11;} }",
+  "result": {
+    "type": "Program",
+    "body": [
+      {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "NumericLiteral",
+              "value": 789
+            }
+          },
+          {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "StringLiteral",
+              "value": "aa"
+            }
+          },
+          {
+            "type": "BlockStatement",
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "expression": {
+                  "type": "NumericLiteral",
+                  "value": 11
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -40,7 +40,11 @@ static const std::vector<std::pair<std::regex, std::optional<std::string>>> s_sp
   {std::regex{R"(^\/\/.*)"}, std::nullopt},           // comments start with "//"
   {std::regex{R"(^\/\*[\s\S]*?\*\/)"}, std::nullopt},   // documentation comment "/* */"
   {std::regex{R"(^\{)"}, "{"},
-  {std::regex{R"(^\})"}, "}"}
+  {std::regex{R"(^\})"}, "}"},
+  {std::regex{R"(^[+\-])"}, "ADDITIVE_OPERATOR"},
+  {std::regex{R"(^[\*\/])"}, "MULTIPLICATIVE_OPERATOR"},
+  {std::regex{R"(^\()"}, "("},
+  {std::regex{R"(^\))"}, ")"}
 };
 
 /**

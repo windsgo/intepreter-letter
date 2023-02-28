@@ -4,6 +4,8 @@
 #include <string>
 #include <memory>
 
+#include <functional>
+
 #include "json.hpp"
 
 #include "Tokenizer.h"
@@ -30,8 +32,14 @@ public:
   json::value Statement();
   json::value ExpressionStatement();
   json::value BlockStatement();
+  json::value EmptyStatement();
 
   json::value Expression();
+  json::value _BinaryExpression(std::function<json::value(void)> builder, const std::string& operator_token);
+  json::value AdditiveExpression();
+  json::value MultiplicativeExpression();
+  json::value PrimaryExpression();
+  json::value ParenthesizedExpression();
 
   json::value Literal();
   json::value StringLiteral(); 

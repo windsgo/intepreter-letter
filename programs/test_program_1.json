@@ -1,0 +1,15 @@
+{
+  "program_file": "programs/test_program_1.txt",
+  "result": {
+    "type": "Program",
+    "body": [
+      {
+        "type": "ExpressionStatement",
+        "expression": {
+          "type": "StringLiteral",
+          "value": " here"
+        }
+      }
+    ]
+  }
+}

@@ -60,59 +60,27 @@
       }
     },
     {
-      "program_file": "programs/doc_comment.txt",
-      "result": {
-        "type": "Program",
-        "body": [
-          {
-            "type": "ExpressionStatement",
-            "expression": {
-                "type": "StringLiteral",
-                "value": " here"
-              }
-          }
-        ]
-      }
+      "sub_json": "programs/test_program_1.json"
     },
     {
-      "program": " /*aa*/ { // xyz  \n 789; \"aa\" ; {11;} }",
-      "result": {
-        "type": "Program",
-        "body": [
-          {
-            "type": "BlockStatement",
-            "body": [
-              {
-                "type": "ExpressionStatement",
-                "expression": {
-                  "type": "NumericLiteral",
-                  "value": 789
-                }
-              },
-              {
-                "type": "ExpressionStatement",
-                "expression": {
-                  "type": "StringLiteral",
-                  "value": "aa"
-                }
-              },
-              {
-                "type": "BlockStatement",
-                "body": [
-                  {
-                    "type": "ExpressionStatement",
-                    "expression": {
-                      "type": "NumericLiteral",
-                      "value": 11
-                    }
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      }
+      "sub_json": "programs/test_program_2.json"
+    },
+    {
+      "sub_json": "programs/test_program_3.json"
+    },
+    {
+      "sub_json": "programs/test_binary_1.json"
+    },
+    {
+      "sub_json": "programs/test_binary_2.json"
+    },
+    {
+      "sub_json": "programs/test_binary_3.json"
+    },
+    {
+      "sub_json": "programs/test_binary_4.json"
     }
+
   ]
 }
 
