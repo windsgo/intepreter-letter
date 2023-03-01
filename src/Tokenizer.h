@@ -3,6 +3,8 @@
 #include "json.hpp"
 #include <cstddef>
 #include <string>
+#include <optional>
+
 
 namespace letter {
 
@@ -12,6 +14,8 @@ private:
   std::size_t m_cursor;
 
 public:
+  using TokenType = std::optional<std::string>;
+
   Tokenizer(const std::string& string);
   
   Tokenizer();

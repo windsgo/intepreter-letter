@@ -1,0 +1,31 @@
+{
+  "program": "x = y1 = 42;",
+  "result": {
+    "type": "Program",
+    "body": [
+      {
+        "type": "ExpressionStatement",
+        "expression": {
+          "type": "AssignmentExpression",
+          "operator": "=",
+          "left": {
+            "type": "Identifier",
+            "name": "x"
+          },
+          "right": {
+            "type": "AssignmentExpression",
+            "operator": "=",
+            "left": {
+              "type": "Identifier",
+              "name": "y1"
+            },
+            "right": {
+              "type": "NumericLiteral",
+              "value": 42
+            }
+          }
+        }
+      }
+    ]
+  }
+}

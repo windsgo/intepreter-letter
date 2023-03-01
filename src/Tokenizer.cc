@@ -31,7 +31,7 @@ void Tokenizer::init(const std::string& string) {
  * @brief: vector of the spec table
  * if type == std::nullopt, means just skip this pattern if matched
  */
-static const std::vector<std::pair<std::regex, std::optional<std::string>>> s_spec_vec = {
+static const std::vector<std::pair<std::regex, Tokenizer::TokenType>> s_spec_vec = {
   {std::regex{R"(^;)"}, ";"},                       // ;
   {std::regex{R"(^\s+)"}, std::nullopt},            // white space
   {std::regex{R"(^\d+)"}, "NUMBER"},                // numbers
@@ -41,17 +41,22 @@ static const std::vector<std::pair<std::regex, std::optional<std::string>>> s_sp
   {std::regex{R"(^\/\*[\s\S]*?\*\/)"}, std::nullopt},   // documentation comment "/* */"
   {std::regex{R"(^\{)"}, "{"},
   {std::regex{R"(^\})"}, "}"},
-  {std::regex{R"(^[+\-])"}, "ADDITIVE_OPERATOR"},
+
+  {std::regex{R"(^\w+)"}, "IDENTIRIFER"},           // this must be after "NUMBER", since \w+ include numbers
+  {std::regex{R"(^=)"}, "SIMPLE_ASSIGN"},
+  {std::regex{R"(^[\*\/\+\-]=)"}, "COMPLEX_ASSIGN"}, // this must be before "+/-"
+
+  {std::regex{R"(^[\+\-])"}, "ADDITIVE_OPERATOR"},
   {std::regex{R"(^[\*\/])"}, "MULTIPLICATIVE_OPERATOR"},
   {std::regex{R"(^\()"}, "("},
-  {std::regex{R"(^\))"}, ")"}
+  {std::regex{R"(^\))"}, ")"},
 };
 
 /**
  * @brief: Try to match(search) regex pattern `regexp` in str
  * @return: matched result if matched, `std::nullopt` if not matched
  */
-static std::optional<std::string> 
+static Tokenizer::TokenType 
 _match(const std::regex& regexp, const std::string& str) {
   // std::cout << "_match cur str: \"" << str << "\"" << std::endl;
   // ElapsedTimer t("match timer");

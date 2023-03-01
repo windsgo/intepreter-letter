@@ -79,6 +79,12 @@
     },
     {
       "sub_json": "programs/test_binary_4.json"
+    },
+    {
+      "sub_json": "programs/test_assignment_1.json"
+    },
+    {
+      "sub_json": "programs/test_assignment_2.json"
     }
 
   ]

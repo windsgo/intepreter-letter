@@ -44,7 +44,7 @@ json::value Parser::StatementList(const std::optional<std::string>& stop_lookahe
     statement_list.emplace_back(this->Statement());
   } 
 
-  return statement_list;
+  return statement_list; // a json::array, no "type" property
 }
 
 /**
@@ -121,19 +121,67 @@ json::value Parser::EmptyStatement() {
 
 /**
  * Expression
+ *  : Literal
+ *  ;
  */
 json::value Parser::Expression() {
-  return this->AdditiveExpression();
+  return this->AssignmentExpression();
+  // return this->AdditiveExpression();
+}
+
+/**
+ * AssignmentExpression
+ *  : AdditiveExpression
+ *  | LeftHandSideExpression AssignmentOperator AssignmentExpression
+ *  ;
+ */
+json::value Parser::AssignmentExpression() {
+  // 赋值表达式的运算优先级比BinaryExpression的优先级更低，所以放在更外层
+  auto&& left = this->AdditiveExpression();
+
+  if (!this->_isAssignmentOperator(this->m_lookahead)) {
+    return left; // if there is no assign op after first 'AdditiveExpression', that is 'AdditiveExpression' itself
+  }
+
+  return json::object{
+    {"type", "AssignmentExpression"},
+    {"operator", this->AssignmentOperator()["value"]},
+    {"left", _checkValidAssignmentTarget(left)},
+    {"right", this->AssignmentExpression()}
+  };
+}
+
+/**
+ * LeftHandSideExpression
+ * : Identifier
+ * ;
+ */
+json::value Parser::LeftHandSideExpression() {
+  return this->Identifier();
+}
+
+/**
+ * Identifier
+ * : IDENTIRIFER
+ * ;
+ */
+json::value Parser::Identifier() {
+  auto&& name = this->_eat("IDENTIRIFER");
+  return json::object{
+    {"type", "Identifier"},
+    {"name", name["value"]}
+  };
 }
 
 /**
  * Generic binary expression.
  */
-json::value Parser::_BinaryExpression(std::function<json::value(void)> builder, const std::string& operator_token) {
+json::value Parser::_BinaryExpression(std::function<json::value(void)> builder, 
+    const Tokenizer::TokenType& operator_token) {
   auto&& left = builder();
 
-  while (this->m_lookahead["type"].as_string() == operator_token) {
-    auto&& op = this->_eat(operator_token);
+  while (this->m_lookahead["type"].as_string() == operator_token.value()) {
+    auto&& op = this->_eat(operator_token.value());
   
     auto&& right = this->MultiplicativeExpression();
 
@@ -155,7 +203,8 @@ json::value Parser::_BinaryExpression(std::function<json::value(void)> builder, 
  *  ;
  */
 json::value Parser::AdditiveExpression() {
-  return _BinaryExpression(std::bind(&Parser::MultiplicativeExpression, this),
+  return _BinaryExpression(
+      std::bind(&Parser::MultiplicativeExpression, this),
       "ADDITIVE_OPERATOR");
 }
 
@@ -166,22 +215,29 @@ json::value Parser::AdditiveExpression() {
  *  ;
  */
 json::value Parser::MultiplicativeExpression() {
-  return _BinaryExpression(std::bind(&Parser::PrimaryExpression, this),
+  return _BinaryExpression(
+      std::bind(&Parser::PrimaryExpression, this),
       "MULTIPLICATIVE_OPERATOR");
 }
 
 /**
  * PrimaryExpression
  *  : Literal
+ *  | ParenthesizedExpression
+ *  | LeftHandSideExpression
  *  ;
  */
 json::value Parser::PrimaryExpression() {
+  if (this->_isLiteral(this->m_lookahead)) {
+    return this->Literal();
+  } 
+
   auto&& type = this->m_lookahead["type"].as_string();
 
   if (type == "(") {
     return this->ParenthesizedExpression();
   } else {
-    return this->Literal();
+    return this->LeftHandSideExpression();
   }
 }
 
@@ -197,6 +253,20 @@ json::value Parser::ParenthesizedExpression() {
   this->_eat(")");
 
   return expression;
+}
+
+/**
+ * AssignmentOperator
+ *  : SIMPLE_ASSIGN
+ *  | COMPLEX_ASSIGN
+ *  ;
+ */
+json::value Parser::AssignmentOperator() {
+  if (this->m_lookahead["type"].as_string() == "SIMPLE_ASSIGN") {
+    return this->_eat("SIMPLE_ASSIGN");
+  } else {
+    return this->_eat("COMPLEX_ASSIGN");
+  }
 }
 
 /**
@@ -252,6 +322,34 @@ json::value Parser::_eat(const std::string& token_type) {
   
   // return the eaten token
   return token;
+}
+
+bool Parser::_isAssignmentOperator(const json::value& token) const {
+  auto&& type = token.at("type").as_string();
+
+  if (type == "SIMPLE_ASSIGN" ||
+      type == "COMPLEX_ASSIGN") {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool Parser::_isLiteral(const json::value& token) const {
+  auto&& type = token.at("type").as_string();
+
+  return type == "NUMBER" || type == "STRING";
+}
+
+/**
+ * Whether the token is an Assignment Target
+ */
+const json::value& Parser::_checkValidAssignmentTarget(const json::value& expression) const {
+  if (expression.at("type").as_string() == "Identifier") {
+    return expression;
+  } {
+    throw Exception("Invalid left-hand side in assignment expression:\n" + expression.to_string());
+  }
 }
 
 } // namespace letter

@@ -10,7 +10,7 @@ int main(int argc, char **argv) {
 
   std::string program = R"(
     
-    (42 + 13) * 5 + 1;
+    y +=x * 2;
 
   )";
   json::value ret;
