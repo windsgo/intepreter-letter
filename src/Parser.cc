@@ -183,7 +183,8 @@ json::value Parser::_BinaryExpression(std::function<json::value(void)> builder,
   while (this->m_lookahead["type"].as_string() == operator_token.value()) {
     auto&& op = this->_eat(operator_token.value());
   
-    auto&& right = this->MultiplicativeExpression();
+    // auto&& right = this->MultiplicativeExpression();
+    auto&& right = builder();
 
     left = json::object{
       {"type", "BinaryExpression"},
